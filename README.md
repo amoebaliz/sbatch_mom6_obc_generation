@@ -27,15 +27,15 @@ For filling using CDO, I've included the following scripts:
 
     b. Python script: write_glorys_boundary.py
       -    Original script can be found in the [CEFI-regional-MOM6/tools/boundary/](https://github.com/NOAA-GFDL/CEFI-regional-MOM6/tree/main/tools) repository
-      -    Update script to indicate location of:
+      -    Update script to indicate locations of:
            - The CEFI-regional-MOM6/tools/boundary/ directory (contains the boundary.py script) on your local machine 
            - The GLORYS files being remapped
            - The the ocean_hgrid.nc
-           - The open boundaries for your domain (e.g., north, south, east, and/or west)
+      -    Update script to indicate the open boundaries for your specific domain (e.g., north, south, east, and/or west)
               
       -    **NOTE:** I've edited this example script to accept the output directory since it is running on a tmp node and needs to be directed as to where you want it to end up
    
-2. This spawns a lot of jobs (#years*#days-in-year). Use the squeue -u $USER functionality to track the status of the jobs. Once the jobs are complete, I use the following to finalize pre processing (**NOTE:**  these steps do not require sbatch):
+2. This spawns a lot of jobs (#years*#days-in-year). Use the **squeue -u $USER** functionality to track the status of the jobs. Once the jobs are complete, I use the following to finalize pre processing (**NOTE:**  these steps do not currently require sbatch; might be useful for the concatenation step):
 
    a. Bash script: concatenate_obc_files.sh
      -    iterates over each year, variable, and segment, and concatenates all obcs for a given year; also modifies some of the attributes
@@ -46,7 +46,8 @@ For filling using CDO, I've included the following scripts:
    
    c. Bash script: cap_obcs
      -    takes the first and last time slice from each year and concatenates to the prior/following year, respectively, to make sure the full year being intergrated by MOM6 is covered in the given year of input files; for the first year (i.e., 1993), the time is set to midnight of Jan 1 using the edit_first_time.py script
-     -    Python script: edit_first_time.py: changes time of 1993 first time slice to Jan 1 of 1993 
+     -    Python script: edit_first_time.py: changes time of 1993 first time slice to Jan 1 of 1993
+     -    **NOTE:** Supposedly, we can now specify multiple input files for the atmosphere (not sure about obcs...) in the xml so we might be able to skip the time capping/ padding in the future and just allow the xml to handle reading in the years that bookend the year being integrated.
    
 
 
