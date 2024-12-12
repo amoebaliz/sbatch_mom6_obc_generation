@@ -1,9 +1,21 @@
 # sbatch_mom6_obc_generation
 Example scripts for pre-processing NEP5k GLORYS files for use as OBCs 
 
-Preliminary steps:
+**Preliminary steps:**
 
 I have spatially-subset GLORYS files in my archive directory that I use for this generation step. If starting from the GLORYS files on uda, I sugest adding an a dmget and ncks step to the "submit_python_make_obc_day.sh" script so as to reduce the input cost that would come from working with the entire global GLORYS domain. 
+
+For filling using CDO, I've included the following scripts: 
+
+  a. Bash script: submit_batch_glorys_fill
+  - iterates the years and months of GLORYS and submits an SBATCH for each month worth of GLORYS files using Andrew C. Ross' script
+    
+  b. Bash script: fill_glorys.sh 
+  - uses CDO to fill in missing values
+  - **NOTE:** you could potenitally point to the global glorys uda directory here and add the spatial subsetting step. Maybe add it to the ncks -4 -L 5 bit?
+  - **NOTE:** This takes a long time - you could discritize further and submit SBATCH job for each individual day. 
+
+**OBC generation steps:**
 
 1. Bash script: submit_batch_obc_day
   - Iterates over each day in a given year (includes leap year criteria to catch Feb. 29's) and submits shell script that runs the write_glorys_boundary.py file
@@ -21,13 +33,13 @@ I have spatially-subset GLORYS files in my archive directory that I use for this
            - The the ocean_hgrid.nc
            - The open boundaries for your domain (e.g., north, south, east, and/or west)
               
-      -    NOTE: I've edited this example script to accept the output directory since it is running on a tmp node and needs to be directed as to where you want it to end up
+      -    **NOTE:** I've edited this example script to accept the output directory since it is running on a tmp node and needs to be directed as to where you want it to end up
    
-2. This spawns a lot of jobs (#years*#days-in-year). Use the squeue -u $USER functionality to track the status of the jobs. Once the jobs are complete, I use the following to finalize pre processing (NOTE: these steps do not require sbatch):
+2. This spawns a lot of jobs (#years*#days-in-year). Use the squeue -u $USER functionality to track the status of the jobs. Once the jobs are complete, I use the following to finalize pre processing (**NOTE:**  these steps do not require sbatch):
 
    a. Bash script: concatenate_obc_files.sh
      -    iterates over each year, variable, and segment, and concatenates all obcs for a given year; also modifies some of the attributes
-     -    NOTE: this script removes the original obc files after concatenation 
+     -    **NOTE:** this script removes the original obc files after concatenation 
    
    b. Bash script: copy_original_obcs
      -    copies pre-capped obc files to archive to have copy if there's any issue with the capping
