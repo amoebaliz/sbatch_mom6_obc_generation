@@ -21,7 +21,7 @@ For filling using CDO, I've included the following scripts:
   - Iterates over each day in a given year (includes leap year criteria to catch Feb. 29's) and submits shell script that runs the write_glorys_boundary.py file
    
     a. Bash script: submit_python_make_obc_day.sh
-      -    contains SBATCH information (e.g., constraints, partition, time)
+      -    contains SBATCH information (e.g., constraints, partition, time) **NOTE:** make sure to make the time long enough - this sometimes goes long on lower memory nodes like an002
       -    loads environmental needs like nco, gcp, conda environment (note - needs to be on analysis partition to read conda environments on NET)
       -    submits python command for write_glorys_boundary.py on slurm-allocated node
 
