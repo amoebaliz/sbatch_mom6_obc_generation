@@ -1,2 +1,42 @@
 # sbatch_mom6_obc_generation
 Example scripts for pre-processing NEP5k GLORYS files for use as OBCs 
+
+Preliminary steps:
+
+I have spatially-subset GLORYS files in my archive directory that I use for this generation step. If starting from the GLORYS files on uda, I sugest adding an a dmget and ncks step to the "submit_python_make_obc_day.sh" script so as to reduce the input cost that would come from working with the entire global GLORYS domain. 
+
+1. Bash script: submit_batch_obc_day
+  - Iterates over each day in a given year (includes leap year criteria to catch Feb. 29's) and submits shell script that runs the write_glorys_boundary.py file
+   
+    a. Bash script: submit_python_make_obc_day.sh
+      -    contains SBATCH information (e.g., constraints, partition, time)
+      -    loads environmental needs like nco, gcp, conda environment (note - needs to be on analysis partition to read conda environments on NET)
+      -    submits python command for write_glorys_boundary.py on slurm-allocated node
+
+    b. Python script: write_glorys_boundary.py
+      -    Original script can be found in the [CEFI-regional-MOM6/tools/boundary/](https://github.com/NOAA-GFDL/CEFI-regional-MOM6/tree/main/tools) repository
+      -    Update script to indicate location of:
+           - The CEFI-regional-MOM6/tools/boundary/ directory (contains the boundary.py script) on your local machine 
+           - The GLORYS files being remapped
+           - The the ocean_hgrid.nc
+           - The open boundaries for your domain (e.g., north, south, east, and/or west)
+              
+      -    NOTE: I've edited this example script to accept the output directory since it is running on a tmp node and needs to be directed as to where you want it to end up
+   
+2. This spawns a lot of jobs (#years*#days-in-year). Use the squeue -u $USER functionality to track the status of the jobs. Once the jobs are complete, I use the following to finalize pre processing (NOTE: these steps do not require sbatch):
+
+   a. Bash script: concatenate_obc_files.sh
+     -    iterates over each year, variable, and segment, and concatenates all obcs for a given year; also modifies some of the attributes
+     -    NOTE: this script removes the original obc files after concatenation 
+   
+   b. Bash script: copy_original_obcs
+     -    copies pre-capped obc files to archive to have copy if there's any issue with the capping
+   
+   c. Bash script: cap_obcs
+     -    takes the first and last time slice from each year and concatenates to the prior/following year, respectively, to make sure the full year being intergrated by MOM6 is covered in the given year of input files; for the first year (i.e., 1993), the time is set to midnight of Jan 1 using the edit_first_time.py script
+     -    Python script: edit_first_time.py: changes time of 1993 first time slice to Jan 1 of 1993 
+   
+
+
+
+   
